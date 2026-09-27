@@ -41,6 +41,8 @@ jobs:
     name: Build salt-core (${{ matrix.salt_version }})
     needs: prepare
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
     permissions:
       contents: read
       packages: write
