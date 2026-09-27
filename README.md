@@ -46,6 +46,67 @@ Available platforms:
 | `kitchen-amazonlinux-2023` | `amazonlinux:2023`              |
 | `kitchen-opensuse-leap-15` | `opensuse/leap:15`              |
 
+## Usage with kitchen-salt
+
+Example `.kitchen.yml` using these images:
+
+```yaml
+driver:
+  name: docker
+  use_sudo: false
+  binary: env DOCKER_BUILDKIT=0 docker
+  build_context: false
+
+provisioner:
+  name: shell
+  script: test/integration/default/provision.sh
+
+verifier:
+  name: shell
+  remote_exec: true
+  command: sudo bash /tmp/verify.sh
+
+platforms:
+  ## Debian / Ubuntu / openSUSE
+  - name: debian-12
+    driver:
+      image: ghcr.io/someblackmagic/salt-docker-images/kitchen-debian-12:<salt_version>
+      run_command: /lib/systemd/systemd
+      env:
+        - container=docker
+      tmpfs:
+        - /run
+        - /run/lock
+
+  ## RHEL-based (Rocky, Alma, CentOS Stream, Amazon Linux)
+  - name: rockylinux-9
+    driver:
+      image: ghcr.io/someblackmagic/salt-docker-images/kitchen-rockylinux-9:<salt_version>
+      run_command: /usr/lib/systemd/systemd
+      username: root
+      env:
+        - container=docker
+      tmpfs:
+        - /run
+        - /run/lock
+    transport:
+      name: docker
+      username: root
+      temp_dir: /var/tmp
+    provisioner:
+      root_path: /var/tmp/kitchen
+      sudo: false
+    verifier:
+      root_path: /var/tmp/verifier
+      sudo: false
+
+suites:
+  - name: default
+```
+
+> **Note:** Debian/Ubuntu/openSUSE platforms use `/lib/systemd/systemd` as `run_command`.
+> RHEL-based platforms (Rocky, Alma, CentOS Stream, Amazon Linux) use `/usr/lib/systemd/systemd` and require additional `transport`, `provisioner`, and `verifier` overrides with `root_path: /var/tmp/...` and `sudo: false`.
+
 ## Building
 
 ### GitHub Actions (CI)
