@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+---
+name: Build Salt Core Images
+
+'on':
+  workflow_dispatch:
+    inputs:
+      salt_versions:
+        description: 'Comma-separated Salt versions (e.g. "3006.9,3006.14,3007.1")'
+        required: true
+        default: '3006.9'
+  push:
+    branches: [main]
+    paths:
+      - 'salt-core/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/salt-core
+
+jobs:
+  prepare:
+    name: Prepare version matrix
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.set-matrix.outputs.versions }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            INPUT="${{ github.event.inputs.salt_versions }}"
+          else
+            INPUT="3006.9"
+          fi
+          JSON=$(echo "$INPUT" | jq -R -c 'split(",") | map(gsub("^\\s+|\\s+$";""))')
+          echo "versions=$JSON" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build salt-core (${{ matrix.salt_version }})
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        salt_version: ${{ fromJson(needs.prepare.outputs.versions) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ matrix.salt_version }}
+            type=raw,value=${{ matrix.salt_version }}-{{sha}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push salt-core:${{ matrix.salt_version }}
+        uses: docker/build-push-action@v6
+        with:
+          context: salt-core
+          push: true
+          build-args: |
+            SALT_VERSION=${{ matrix.salt_version }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.salt_version }}
+          cache-to: type=inline
