@@ -22,23 +22,6 @@ RUN apt update && apt install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-# ---- non-root user ----
-
-ARG UID=1000
-ARG GID=1000
-
-RUN set -exu && \
-    groupadd -g ${GID} sre && \
-    useradd -m -u ${UID} -g ${GID} -s /bin/bash sre && \
-    true
-
-COPY .bashrc /home/sre/.bashrc
-
-RUN set -exu && \
-    touch /home/sre/.bash_aliases  && \
-    touch /home/sre/.bash_history  && \
-    true
-
 # -----------------------------
 # Salt APT repository (Broadcom)
 # -----------------------------
@@ -79,8 +62,11 @@ ENV SALT_LOGDIR=/workspace/var/log/salt
 ENV SALT_PKI_DIR=/workspace/pki/salt
 
 
+COPY --chmod=644 bash.bashrc /etc/bash.bashrc
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["bash", "/entrypoint.sh"]
+COPY --chmod=777 ./docker-entrypoint.sh /docker-entrypoint.sh
+COPY ./docker-entrypoint.d /docker-entrypoint.d
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 CMD ["bash"]

@@ -101,8 +101,8 @@ fi
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
+alias ll='ls -lah'
 
-. ~/.bash_aliases
 if [ -d "$HOME/.bash_alias.d" ]; then
   for f in "$HOME/.bash_alias.d"/*.sh; do
     [ -r "$f" ] && . "$f"

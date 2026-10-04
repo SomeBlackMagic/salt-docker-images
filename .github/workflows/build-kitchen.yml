@@ -65,6 +65,13 @@ jobs:
           - kitchen-almalinux-9
           - kitchen-opensuse-leap-15
     steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check if image already exists
         id: check-image
         run: |
@@ -84,14 +91,6 @@ jobs:
       - name: Checkout repository
         if: steps.check-image.outputs.exists != 'true' || github.event.inputs.force_rebuild == 'true'
         uses: actions/checkout@v4
-
-      - name: Log in to the Container registry
-        if: steps.check-image.outputs.exists != 'true' || github.event.inputs.force_rebuild == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         if: steps.check-image.outputs.exists != 'true' || github.event.inputs.force_rebuild == 'true'
