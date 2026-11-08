@@ -20,8 +20,9 @@ RUN apt-get update \
 
 RUN touch /tmp/disable_salt_checks \
  && curl -fsSL https://github.com/saltstack/salt-bootstrap/releases/latest/download/bootstrap-salt.sh \
-    | sh -s -- -X -M -S -W -L -y -Y stable ${SALT_VERSION} \
- && rm -rf /var/cache/salt
+    | sh -s -- -X stable ${SALT_VERSION} \
+ && rm -rf /var/cache/salt \
+ && for f in /opt/saltstack/salt/salt-*; do ln -sf "$f" "/usr/local/bin/$(basename $f)"; done
 
 
 RUN curl -fsSL https://raw.githubusercontent.com/saltstack/kitchen-salt/master/assets/install.sh \
