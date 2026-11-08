@@ -8,10 +8,12 @@ ENV container=docker \
 
 RUN apt update \
  && apt install -y --no-install-recommends \
-      systemd-sysv \
-      curl \
-      ca-certificates \
-      sudo openssh-server curl lsb-release \
+    systemd-sysv \
+    curl \
+    ca-certificates \
+    sudo \
+    openssh-server \
+    lsb-release \
  && rm -rf /var/lib/apt/lists/*
 
 RUN touch /tmp/disable_salt_checks \

@@ -2,11 +2,16 @@ FROM opensuse/leap:15
 
 ARG SALT_VERSION=3006.9
 
-RUN zypper install -y sudo openssh which curl gawk
+ENV container=docker
 
 RUN zypper --non-interactive install --no-recommends \
-      systemd \
+      sudo \
+      openssh \
+      openssh-server \
+      which \
       curl \
+      gawk \
+      systemd \
       ca-certificates \
  && zypper clean --all
 

@@ -10,6 +10,9 @@ RUN apt-get update \
       systemd-sysv \
       curl \
       ca-certificates \
+      sudo \
+      openssh-server \
+      lsb-release \
  && rm -rf /var/lib/apt/lists/*
 
 RUN touch /tmp/disable_salt_checks \

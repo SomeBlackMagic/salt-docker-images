@@ -4,9 +4,14 @@ ARG SALT_VERSION=3006.9
 
 ENV container=docker
 
-RUN yum install -y --allowerasing sudo openssh-server openssh-clients which curl
-
-RUN dnf install -y --allowerasing systemd curl \
+RUN dnf install -y --allowerasing \
+      sudo \
+      openssh-server \
+      openssh-clients \
+      which \
+      systemd \
+      curl \
+      ca-certificates \
  && dnf clean all
 
 RUN touch /tmp/disable_salt_checks \

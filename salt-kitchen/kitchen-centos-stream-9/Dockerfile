@@ -2,8 +2,16 @@ FROM quay.io/centos/centos:stream9
 
 ARG SALT_VERSION=3006.9
 
-RUN yum install -y sudo openssh-server openssh-clients which
-RUN dnf install -y --allowerasing systemd curl \
+ENV container=docker
+
+RUN dnf install -y --allowerasing \
+      sudo \
+      openssh-server \
+      openssh-clients \
+      which \
+      systemd \
+      curl \
+      ca-certificates \
  && dnf clean all
 
 RUN touch /tmp/disable_salt_checks \
