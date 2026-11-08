@@ -12,6 +12,9 @@ RUN dnf install -y --allowerasing \
       systemd \
       curl \
       ca-certificates \
+      ruby \
+      ruby-devel \
+      git \
  && dnf clean all
 
 RUN touch /tmp/disable_salt_checks \

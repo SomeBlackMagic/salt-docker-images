@@ -14,6 +14,9 @@ RUN apt update \
     sudo \
     openssh-server \
     lsb-release \
+    ruby \
+    ruby-dev \
+    git \
  && rm -rf /var/lib/apt/lists/*
 
 RUN touch /tmp/disable_salt_checks \
