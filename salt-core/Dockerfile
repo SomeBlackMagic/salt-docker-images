@@ -1,4 +1,5 @@
-FROM python:3.10-slim
+FROM debian:trixie
+
 
 ENV DEBIAN_FRONTEND=noninteractive
 

@@ -20,8 +20,10 @@ PLATFORM       ?= kitchen-debian-12
 
 KITCHEN_PLATFORMS = \
 	kitchen-debian-12 \
+	kitchen-debian-13 \
 	kitchen-ubuntu-2204 \
 	kitchen-ubuntu-2404 \
+	kitchen-ubuntu-2604 \
 	kitchen-rockylinux-9 \
 	kitchen-amazonlinux-2023 \
 	kitchen-centos-stream-9 \
