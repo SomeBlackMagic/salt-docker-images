@@ -9,14 +9,14 @@
 #   make test-kitchen PLATFORM=kitchen-ubuntu-2404 # build + smoke test kitchen image
 #   make clean                                     # remove built images
 
-SALT_VERSION   ?= 3006.9
+SALT_VERSION   ?= 3008.5
 REGISTRY       ?= ghcr.io
 REPO           ?= someblackmagic/salt-docker-images
 
 SALT_CORE_IMAGE = $(REGISTRY)/$(REPO)/salt-core:$(SALT_VERSION)
 KITCHEN_IMAGE   = $(REGISTRY)/$(REPO)/$(PLATFORM):$(SALT_VERSION)
 
-PLATFORM       ?= kitchen-debian-12
+PLATFORM       ?= kitchen-ubuntu-2404
 
 KITCHEN_PLATFORMS = \
 	kitchen-debian-12 \
@@ -44,7 +44,8 @@ build-salt-core: ## Build salt-core image
 		--build-arg SALT_VERSION=$(SALT_VERSION) \
 		-t salt-core:$(SALT_VERSION) \
 		-t $(SALT_CORE_IMAGE) \
-		salt-core/
+		-f salt-core/Dockerfile \
+		.
 
 test-salt-core: build-salt-core ## Build & smoke-test salt-core
 	@echo "--- smoke test: salt-core:$(SALT_VERSION) ---"
@@ -60,7 +61,8 @@ build-kitchen: ## Build one kitchen image (PLATFORM=kitchen-debian-12)
 		--build-arg SALT_VERSION=$(SALT_VERSION) \
 		-t $(PLATFORM):$(SALT_VERSION) \
 		-t $(KITCHEN_IMAGE) \
-		salt-kitchen/$(PLATFORM)/
+		-f salt-kitchen/$(PLATFORM)/Dockerfile \
+		.
 
 build-kitchen-all: ## Build all kitchen images
 	@for p in $(KITCHEN_PLATFORMS); do \
