@@ -20,6 +20,7 @@ RUN apt update && apt install -y \
     nano \
     bash-completion \
     mc \
+    patch \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -50,6 +51,14 @@ RUN apt update && apt install -y \
 RUN curl -fsSL https://raw.githubusercontent.com/saltstack/salt/develop/pkg/salt.bash \
     -o /etc/bash_completion.d/salt.bash
 
+COPY patch/ /tmp/patch/
+RUN SALT_MAJOR=$(echo "${SALT_VERSION}" | cut -d. -f1) \
+ && if [ -f "/tmp/patch/salt-ssh-target-modules-${SALT_MAJOR}.patch" ]; then \
+      SITE_PKG=$(python3 -c "import site; print(site.getsitepackages()[0])"); \
+      patch -p1 -d "$SITE_PKG" < "/tmp/patch/salt-ssh-target-modules-${SALT_MAJOR}.patch"; \
+    fi \
+ && rm -rf /tmp/patch
+
 #RUN chown -R sre:sre /opt/saltstack/salt
 
 
@@ -63,10 +72,10 @@ ENV SALT_LOGDIR=/workspace/var/log/salt
 ENV SALT_PKI_DIR=/workspace/pki/salt
 
 
-COPY --chmod=644 bash.bashrc /etc/bash.bashrc
+COPY --chmod=644 salt-core/bash.bashrc /etc/bash.bashrc
 
-COPY --chmod=777 ./docker-entrypoint.sh /docker-entrypoint.sh
-COPY ./docker-entrypoint.d /docker-entrypoint.d
+COPY --chmod=777 salt-core/docker-entrypoint.sh /docker-entrypoint.sh
+COPY salt-core/docker-entrypoint.d /docker-entrypoint.d
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

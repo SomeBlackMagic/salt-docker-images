@@ -112,7 +112,8 @@ jobs:
         if: steps.check-image.outputs.exists != 'true' || github.event.inputs.force_rebuild == 'true'
         uses: docker/build-push-action@v6
         with:
-          context: salt-kitchen/${{ matrix.platform }}
+          context: .
+          file: salt-kitchen/${{ matrix.platform }}/Dockerfile
           push: true
           build-args: |
             SALT_VERSION=${{ matrix.salt_version }}
