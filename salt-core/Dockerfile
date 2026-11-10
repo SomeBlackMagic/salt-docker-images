@@ -54,7 +54,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/saltstack/salt/develop/pkg/salt
 COPY patch/ /tmp/patch/
 RUN SALT_MAJOR=$(echo "${SALT_VERSION}" | cut -d. -f1) \
  && if [ -f "/tmp/patch/salt-ssh-target-modules-${SALT_MAJOR}.patch" ]; then \
-      SITE_PKG=$(python3 -c "import site; print(site.getsitepackages()[0])"); \
+      SITE_PKG=$(dirname $(dirname $(dpkg -L salt-common | grep 'salt/__init__.py' | head -1))); \
       patch -p1 -d "$SITE_PKG" < "/tmp/patch/salt-ssh-target-modules-${SALT_MAJOR}.patch"; \
     fi \
  && rm -rf /tmp/patch
